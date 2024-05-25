@@ -1,6 +1,28 @@
 #include <regex>
 #include <fstream>
 #include "parseTokens.h"
+#include "iostream"
+
+std::tuple<std::string, int, std::vector<int>> parseString(const std::string &input) {
+    size_t commaPos = input.find(',');
+    size_t colonPos = input.find(':');
+    size_t bracketPos = input.find('[');
+    size_t bracketEndPos = input.find(']');
+
+    std::string name = input.substr(0, commaPos);
+    int number = std::stoi(input.substr(commaPos + 1, colonPos - commaPos - 1));
+
+    std::string vectorPart = input.substr(bracketPos + 1, bracketEndPos - bracketPos - 1);
+    std::vector<int> vec;
+    std::stringstream ss(vectorPart);
+    std::string item;
+
+    while (std::getline(ss, item, ',')) {
+        vec.push_back(std::stoi(item));
+    }
+
+    return std::make_tuple(name, number, vec);
+}
 
 std::unordered_map<std::string, block_type> parseTokens(const std::string& filename) {
 
@@ -59,24 +81,8 @@ std::unordered_map<std::string, block_type> parseTokens(const std::string& filen
 
         } else if (line.find('<') != std::string::npos && line.find("</") == std::string::npos) {
             current_category = line.substr(1, line.size() - 2);
-        } else {
-            std::regex item_match(R"(([^\s]+),(\d+): \[(.*?)\])");
-            std::smatch match;
-            if (std::regex_search(line, match, item_match)) {
-                std::string name = match[1];
-                int count = std::stoi(match[2]);
-                std::vector<int> values;
-
-                std::string values_str = match[3];
-                std::size_t start = 0;
-                std::size_t end = values_str.find(", ");
-                while (end != std::string::npos) {
-                    values.push_back(std::stoi(values_str.substr(start, end - start)));
-                    start = end + 2; // Skip the delimiter ", "
-                    end = values_str.find(", ", start);
-                }
-                current_block[current_category].emplace_back(name, count, values);
-            }
+        } else if (line.find("</") == std::string::npos){
+            current_block[current_category].push_back(parseString(line));
         }
     }
     if (!current_block.empty()) {
