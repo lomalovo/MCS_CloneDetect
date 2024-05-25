@@ -77,12 +77,12 @@ int main() {
     }
 
     for (const auto& directory : dirs_paths) {
-        std::cout << "Creating map of: " << directory << std::endl;
+        std::cout << "\nCreating map of: " << directory << std::endl;
         auto data = process_files(directory);
 
         std::cout << "\nDetecting clones in: " << directory << std::endl;
         std::vector<std::pair<std::string, std::string>> clone_detect_result;
-        cloneDetectAlgorithm(data, k, beta, theta, phi, eta, directory);
+        clone_detect_result = cloneDetectAlgorithm(data, k, beta, theta, phi, eta);
 
         size_t last = directory.rfind('/');
         std::string new_directory = directory.substr(last + 1);
@@ -91,7 +91,9 @@ int main() {
         std::cout << "\nSaving results to: " << diric + new_directory + ".pair" << std::endl;
 
         for (const auto& clone : clone_detect_result) {
-            outf << parseAndFormatString(clone.first) << "," << parseAndFormatString(clone.second) << std::endl;
+            if (clone.first != clone.second) {
+                outf << parseAndFormatString(clone.first) << "," << parseAndFormatString(clone.second) << std::endl;
+            }
         }
 
     }

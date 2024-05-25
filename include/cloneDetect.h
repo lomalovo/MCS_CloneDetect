@@ -3,8 +3,8 @@
 #include "parseTokens.h"
 #include <vector>
 
-void cloneDetectAlgorithm(
+std::vector<std::pair<std::string, std::string>> cloneDetectAlgorithm(
         const std::unordered_map<std::string, block_type>& CM,
-        int k, double beta, double theta, double phi, double eta, const std::string& directory);
+        int k, double beta, double theta, double phi, double eta);
     
 #endif // CLONEDETECT_H
