@@ -6,24 +6,37 @@
 #include <map>
 #include "parseTokens.h"
 #include "cloneDetect.h"
+#include "threadPool.h"
+
 
 namespace fs = std::filesystem;
 
 std::unordered_map<std::string, block_type> process_files(const std::string& directory) {
     std::vector<std::string> file_paths;
-    for (const auto& entry : fs::directory_iterator(directory)) {
+    for (const auto& entry : std::filesystem::directory_iterator(directory)) {
         if (entry.is_regular_file()) {
-            file_paths.push_back(entry.path());
+            file_paths.push_back(entry.path().string());
         }
     }
 
     std::unordered_map<std::string, block_type> combined_data;
+    std::mutex data_mutex;
+
+    const size_t num_threads = std::thread::hardware_concurrency();
+    ThreadPool pool(num_threads);
+
     for (const auto& file_path : file_paths) {
-        auto tokens = parseTokens(file_path);
-        for (const auto& token : tokens) {
-            combined_data.insert(token);
-        }
+        pool.enqueue([&combined_data, &data_mutex, file_path] {
+            auto tokens = parseTokens(file_path);
+            std::lock_guard<std::mutex> guard(data_mutex);
+            for (const auto& token : tokens) {
+                combined_data.insert(token);
+            }
+        });
     }
+
+    pool.wait_for_completion();
+
     return combined_data;
 }
 
@@ -56,15 +69,7 @@ int main() {
 
         std::cout << "Detecting clones in: " << directory << std::endl;
         std::vector<std::pair<std::string, std::string>> clone_detect_result;
-        clone_detect_result = cloneDetectAlgorithm(data, k, beta, theta, phi, eta);
-
-        std::cout << "Saving results of: " << directory << std::endl;
-        for (const auto& clone : clone_detect_result) {
-            if (clone.first != clone.second) {
-                outfile << "{ " << clone.first << ", " << clone.second << " }\n";
-            }
-        }
-
+        cloneDetectAlgorithm(data, k, beta, theta, phi, eta, directory);
     }
     return 0;
 }
