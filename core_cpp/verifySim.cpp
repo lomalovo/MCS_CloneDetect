@@ -20,7 +20,7 @@ double cosine_similarity(const std::vector<int>& vector1, const std::vector<int>
     return dot_product / (norm1 * norm2);
 }
 
-double verifySim(const std::vector<std::tuple<std::string, int, std::vector<int>>>& P, const std::vector<std::tuple<std::string, int, std::vector<int>>>& Q, double phi) {
+double verifySim(const vectorType& P, const vectorType& Q, double phi) {
     double totalSim = 0;
     size_t len_p = P.size(), len_q = Q.size();
 

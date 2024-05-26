@@ -11,28 +11,30 @@
 namespace fs = std::filesystem;
 
 std::string parseAndFormatString(const std::string &input) {
-    // Найти позиции ключевых слов
-    size_t filePathPos = input.find("filePath:") + 9;
-    size_t startlinePos = input.find("startline:") + 10;
-    size_t endlinePos = input.find("endline:") + 8;
+    size_t filePathStart = input.find("filePath:") + 9;
+    size_t filePathEnd = input.find(", startline:");
 
-    // Найти конец строки пути
-    size_t filePathEndPos = input.find(',', filePathPos);
-    std::string filePath = input.substr(filePathPos, filePathEndPos - filePathPos);
+    std::string filePath = input.substr(filePathStart, filePathEnd - filePathStart);
 
-    // Найти конец строки startline
-    size_t startlineEndPos = input.find(',', startlinePos);
-    std::string startline = input.substr(startlinePos, startlineEndPos - startlinePos);
+    size_t fileNameStart = filePath.rfind('/') + 1;
+    std::string fileName = filePath.substr(fileNameStart);
 
-    // Найти конец строки endline
-    size_t endlineEndPos = input.find(',', endlinePos);
-    std::string endline = input.substr(endlinePos, endlineEndPos - endlinePos);
+    size_t startlineStart = input.find("startline:") + 10;
+    size_t startlineEnd = input.find(", endline:");
+    int startline = std::stoi(input.substr(startlineStart, startlineEnd - startlineStart));
 
-    // Форматировать строку
-    std::string result = filePath + "," + startline + "," + endline;
+    size_t endlineStart = input.find("endline:") + 8;
+    size_t endlineEnd = input.find(", validTokenNum:");
+    int endline = std::stoi(input.substr(endlineStart, endlineEnd - endlineStart));
+
+    size_t directoryStart = filePath.rfind('/', fileNameStart - 2);
+    std::string directory = filePath.substr(directoryStart + 1, fileNameStart - directoryStart - 2);
+
+    std::string result = directory + "," + fileName + "," + std::to_string(startline) + "," + std::to_string(endline);
 
     return result;
 }
+
 
 
 std::unordered_map<std::string, block_type> process_files(const std::string& directory) {
@@ -69,12 +71,6 @@ int main() {
     double eta = 0.65;
     double phi = 0.1;
     int k = 5;
-
-    std::ofstream outfile("./clonepairs.txt");
-
-    if (!outfile.is_open()) {
-        throw std::invalid_argument("Возникла ошибка при открытии входного файла.");
-    }
 
     for (const auto& directory : dirs_paths) {
         std::cout << "\nCreating map of: " << directory << std::endl;
