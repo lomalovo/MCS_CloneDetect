@@ -10,7 +10,11 @@ Tool runs under Python3 environment, and you should first install **pandarallel*
 
     pip3 install pandarallel
 
-<h2>2. How to run tool to perform clone detection</h2>
+<h2>2. Build</h2>
+
+    make
+    
+<h2>3. How to run tool to perform clone detection</h2>
 
 Tool supports detection for c and java language. **runner.py** is the runner file.
 
