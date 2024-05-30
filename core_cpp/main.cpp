@@ -55,22 +55,29 @@ std::unordered_map<std::string, block_type> process_files(const std::string& dir
     return combined_data;
 }
 
-int main() {
+int main([[maybe_unused]] int argc, char *argv[]) {
+    std::string mode(argv[1]);
     std::string dir = "./tokens";
     std::vector<std::string> dirs_paths;
-    for (const auto& entry : fs::directory_iterator(dir)) {
-        
-        if (entry.is_directory()) {
-            dirs_paths.push_back(entry.path());
-        }
-    }
-
 
     double beta = 0.5;
     double theta = 0.4;
     double eta = 0.65;
     double phi = 0.1;
     int k = 5;
+
+    if (mode == "bcb") {
+        for (const auto &entry: fs::directory_iterator(dir)) {
+            if (entry.is_directory()) {
+                dirs_paths.push_back(entry.path());
+            }
+        }
+    }
+    else if (mode == "common"){
+        dirs_paths.push_back(dir);
+    } else {
+        std::cout << "wrong mode" << std::endl;
+    }
 
     for (const auto& directory : dirs_paths) {
         std::cout << "\nCreating map of: " << directory << std::endl;
@@ -82,9 +89,9 @@ int main() {
 
         size_t last = directory.rfind('/');
         std::string new_directory = directory.substr(last + 1);
-        std::string diric("./results/");
-        std::ofstream outf(diric + new_directory + ".pair", std::ios_base::app);
-        std::cout << "\nSaving results to: " << diric + new_directory + ".pair" << std::endl;
+        std::string direc("./results/");
+        std::ofstream outf(direc + new_directory + ".pair", std::ios_base::app);
+        std::cout << "\nSaving results to: " << direc + new_directory + ".pair" << std::endl;
 
         for (const auto& clone : clone_detect_result) {
             if (clone.first != clone.second) {
