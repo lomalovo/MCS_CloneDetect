@@ -72,8 +72,7 @@ int main([[maybe_unused]] int argc, char *argv[]) {
                 dirs_paths.push_back(entry.path());
             }
         }
-    }
-    else if (mode == "common"){
+    } else if (mode == "common"){
         dirs_paths.push_back(dir);
     } else {
         std::cout << "wrong mode" << std::endl;
@@ -93,12 +92,19 @@ int main([[maybe_unused]] int argc, char *argv[]) {
         std::ofstream outf(direc + new_directory + ".pair", std::ios_base::app);
         std::cout << "\nSaving results to: " << direc + new_directory + ".pair" << std::endl;
 
-        for (const auto& clone : clone_detect_result) {
-            if (clone.first != clone.second) {
-                outf << parseAndFormatString(clone.first) << "," << parseAndFormatString(clone.second) << std::endl;
+        if (mode == "bcb") {
+            for (const auto& clone : clone_detect_result) {
+                if (clone.first != clone.second) {
+                    outf << parseAndFormatString(clone.first) << "," << parseAndFormatString(clone.second) << std::endl;
+                }
+            }
+        } else {
+            for (const auto& clone : clone_detect_result) {
+                if (clone.first != clone.second) {
+                    outf << clone.first << "," << clone.second << std::endl;
+                }
             }
         }
-
     }
     return 0;
 }
