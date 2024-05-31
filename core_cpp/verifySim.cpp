@@ -1,6 +1,7 @@
 #include <cmath>
 #include <string>
 #include "verifySim.h"
+#include <tuple>
 
 double cosine_similarity(const std::vector<int>& vector1, const std::vector<int>& vector2) {
     double norm1 = 0, norm2 = 0, dot_product = 0;
